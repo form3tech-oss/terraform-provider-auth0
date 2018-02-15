@@ -22,7 +22,7 @@ build-gox: deps fmtcheck vet
 
 release:
 	go get github.com/goreleaser/goreleaser; \
-    scripts/release.sh; \
+    goreleaser; \
 
 deps:
 	go get -u golang.org/x/net/context; \
