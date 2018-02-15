@@ -1,12 +1,12 @@
 package auth0
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"log"
-	"github.com/parnurzeal/gorequest"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/parnurzeal/gorequest"
+	"log"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -27,17 +27,15 @@ func Provider() terraform.ResourceProvider {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("AUTH0_CLIENT_SECRET", nil),
 			},
-
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"auth0_user":   resourceAuth0User(),
+			"auth0_user": resourceAuth0User(),
 		},
 
 		ConfigureFunc: providerConfigure,
 	}
 }
-
 
 type Config struct {
 	domain      string
@@ -46,10 +44,10 @@ type Config struct {
 }
 
 type LoginRequest struct {
-	ClientId string `json:"client_id"`
+	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
-	Audience string `json:"audience"`
-	GrantType string `json:"grant_type"`
+	Audience     string `json:"audience"`
+	GrantType    string `json:"grant_type"`
 }
 
 type LoginResponse struct {
@@ -63,10 +61,10 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	apiUri := "https://" + domain + "/api/v2/"
 
 	auth0LoginRequest := &LoginRequest{
-		ClientId: 		d.Get("auth0_client_id").(string),
-		ClientSecret: 	d.Get("auth0_client_secret").(string),
-		Audience: 		apiUri,
-		GrantType: 		"client_credentials",
+		ClientId:     d.Get("auth0_client_id").(string),
+		ClientSecret: d.Get("auth0_client_secret").(string),
+		Audience:     apiUri,
+		GrantType:    "client_credentials",
 	}
 
 	_, body, errs := gorequest.New().Post("https://" + domain + "/oauth/token").Send(auth0LoginRequest).End()
@@ -82,9 +80,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	config := &Config{
-		domain: domain,
+		domain:      domain,
 		accessToken: loginResponse.AccessToken,
-		apiUri:apiUri,
+		apiUri:      apiUri,
 	}
 
 	return NewClient(config), nil

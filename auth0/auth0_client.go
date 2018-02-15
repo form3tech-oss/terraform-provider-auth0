@@ -1,9 +1,9 @@
 package auth0
 
 import (
-	"github.com/parnurzeal/gorequest"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"github.com/parnurzeal/gorequest"
 )
 
 type AuthClient struct {
@@ -26,13 +26,12 @@ type UserRequest struct {
 }
 
 type User struct {
-	UserId			 string		`json:"user_id,omitempty"`
-	Email 			 string     `json:"email,omitempty"`
-	Name 		 	 string     `json:"name,omitempty"`
-	UserMetaData 	 map[string]interface{}     `json:"user_metadata,omitempty"`
-	EmailVerified 	 bool       `json:"email_verified,omitempty"`
+	UserId        string                 `json:"user_id,omitempty"`
+	Email         string                 `json:"email,omitempty"`
+	Name          string                 `json:"name,omitempty"`
+	UserMetaData  map[string]interface{} `json:"user_metadata,omitempty"`
+	EmailVerified bool                   `json:"email_verified,omitempty"`
 }
-
 
 func (config *Config) getAuthenticationHeader() string {
 	return "Bearer " + config.accessToken
@@ -40,7 +39,7 @@ func (config *Config) getAuthenticationHeader() string {
 
 func (authClient *AuthClient) GetUserById(id string) (*User, error) {
 
-	_, body, errs := gorequest.New().Get(authClient.config.apiUri + "users/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Get(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could parse user resposne from auth0, error: %v", errs)
@@ -61,8 +60,7 @@ func (authClient *AuthClient) GetUserById(id string) (*User, error) {
 
 func (authClient *AuthClient) CreateUser(userRequest *UserRequest) (*User, error) {
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri + "users").Send(userRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
-
+	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"users").Send(userRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create user in auth0, error: %v", errs)
@@ -83,7 +81,7 @@ func (authClient *AuthClient) CreateUser(userRequest *UserRequest) (*User, error
 
 func (authClient *AuthClient) UpdateUserById(id string, userRequest *UserRequest) (*User, error) {
 
-	_, body, errs := gorequest.New().Patch(authClient.config.apiUri + "users/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Patch(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 user, error: %v", errs)
 	}
@@ -103,15 +101,10 @@ func (authClient *AuthClient) UpdateUserById(id string, userRequest *UserRequest
 
 func (authClient *AuthClient) DeleteById(id string) error {
 
-	res, _, errs := gorequest.New().Delete(authClient.config.apiUri + "users/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	res, _, errs := gorequest.New().Delete(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete auth0 user, result: %v error: %v", res, errs)
 	}
 
 	return nil
 }
-
-
-
-
-

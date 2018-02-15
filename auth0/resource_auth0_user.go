@@ -1,8 +1,8 @@
 package auth0
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
 	"fmt"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceAuth0User() *schema.Resource {
@@ -40,14 +40,13 @@ func resourceAuth0User() *schema.Resource {
 				ForceNew: true,
 			},
 			"email_verified": &schema.Schema{
-				Type:         schema.TypeBool,
-				Optional:     true,
-				ForceNew: 	  true,
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
 			},
 		},
 	}
 }
-
 
 func resourceAuth0UserCreate(d *schema.ResourceData, meta interface{}) error {
 
@@ -111,7 +110,6 @@ func createUserRequestFromResourceData(d *schema.ResourceData) *UserRequest {
 	userRequest.Password = readStringFromResource(d, "password")
 	userRequest.UserMetaData = readMapFromResource(d, "user_metadata")
 	userRequest.EmailVerified = readBoolFromResource(d, "email_verified")
-
 
 	return userRequest
 }

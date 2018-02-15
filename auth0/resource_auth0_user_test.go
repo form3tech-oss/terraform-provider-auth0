@@ -9,7 +9,7 @@ import (
 
 func TestAccAuth0User(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  	  func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAuth0UserDestroy,
 		Steps: []resource.TestStep{
@@ -42,7 +42,6 @@ func TestAccAuth0User(t *testing.T) {
 		},
 	})
 }
-
 
 func testAccCheckAuth0UserDestroy(state *terraform.State) error {
 
@@ -123,4 +122,3 @@ resource "auth0_user" "test_user" {
 	email_verified 	= true
 }
 `
-

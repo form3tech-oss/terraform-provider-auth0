@@ -3,10 +3,9 @@ package auth0
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"testing"
 	"os"
+	"testing"
 )
-
 
 var testAccProviders map[string]terraform.ResourceProvider
 var testAccProvider *schema.Provider
