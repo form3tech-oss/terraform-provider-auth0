@@ -91,7 +91,7 @@ func resourceAuth0UserDelete(d *schema.ResourceData, meta interface{}) error {
 
 	auth0Client := meta.(*AuthClient)
 
-	err := auth0Client.DeleteById(d.Id())
+	err := auth0Client.DeleteUserById(d.Id())
 
 	if err != nil {
 		return fmt.Errorf("could not delete auth0 user: %v", err)
