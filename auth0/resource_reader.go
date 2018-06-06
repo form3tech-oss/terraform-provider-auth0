@@ -25,3 +25,19 @@ func readMapFromResource(d *schema.ResourceData, key string) map[string]interfac
 
 	return nil
 }
+
+func readStringArrayFromResource(d *schema.ResourceData, key string) []string {
+
+	if attr, ok := d.GetOk(key); ok {
+		var array []string
+		items := attr.([]interface{})
+		for _, x := range items {
+			item := x.(string)
+			array = append(array, item)
+		}
+
+		return array
+	}
+
+	return nil
+}

@@ -30,7 +30,10 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"auth0_user": resourceAuth0User(),
+			"auth0_user":         resourceAuth0User(),
+			"auth0_client":       resourceAuth0Client(),
+			"auth0_api":          resourceAuth0Api(),
+			"auth0_client_grant": resourceAuth0ClientGrant(),
 		},
 
 		ConfigureFunc: providerConfigure,
