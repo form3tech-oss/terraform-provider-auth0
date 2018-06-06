@@ -82,7 +82,7 @@ func (config *Config) getAuthenticationHeader() string {
 // User
 func (authClient *AuthClient) GetUserById(id string) (*User, error) {
 
-	_, body, errs := gorequest.New().Get(authClient.config.apiUri + "users/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Get(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could parse user response from auth0, error: %v", errs)
@@ -103,7 +103,7 @@ func (authClient *AuthClient) GetUserById(id string) (*User, error) {
 
 func (authClient *AuthClient) CreateUser(userRequest *UserRequest) (*User, error) {
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri + "users").Send(userRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"users").Send(userRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create user in auth0, error: %v", errs)
@@ -124,7 +124,7 @@ func (authClient *AuthClient) CreateUser(userRequest *UserRequest) (*User, error
 
 func (authClient *AuthClient) UpdateUserById(id string, userRequest *UserRequest) (*User, error) {
 
-	_, body, errs := gorequest.New().Patch(authClient.config.apiUri + "users/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Patch(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 user, error: %v", errs)
 	}
@@ -144,7 +144,7 @@ func (authClient *AuthClient) UpdateUserById(id string, userRequest *UserRequest
 
 func (authClient *AuthClient) DeleteUserById(id string) error {
 
-	res, _, errs := gorequest.New().Delete(authClient.config.apiUri + "users/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	res, _, errs := gorequest.New().Delete(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete auth0 user, result: %v error: %v", res, errs)
 	}
@@ -155,7 +155,7 @@ func (authClient *AuthClient) DeleteUserById(id string) error {
 // Client
 func (authClient *AuthClient) GetClientById(id string) (*Client, error) {
 
-	_, body, errs := gorequest.New().Get(authClient.config.apiUri + "clients/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Get(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could parse client response from auth0, error: %v", errs)
@@ -176,7 +176,7 @@ func (authClient *AuthClient) GetClientById(id string) (*Client, error) {
 
 func (authClient *AuthClient) CreateClient(clientRequest *ClientRequest) (*Client, error) {
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri + "clients").Send(clientRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"clients").Send(clientRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create client in auth0, error: %v", errs)
@@ -196,7 +196,7 @@ func (authClient *AuthClient) CreateClient(clientRequest *ClientRequest) (*Clien
 }
 
 func (authClient *AuthClient) UpdateClientById(id string, clientRequest *ClientRequest) (*Client, error) {
-	_, body, errs := gorequest.New().Patch(authClient.config.apiUri + "clients/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Patch(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 client, error: %v", errs)
 	}
@@ -215,7 +215,7 @@ func (authClient *AuthClient) UpdateClientById(id string, clientRequest *ClientR
 }
 
 func (authClient *AuthClient) DeleteClientById(id string) error {
-	res, _, errs := gorequest.New().Delete(authClient.config.apiUri + "clients/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	res, _, errs := gorequest.New().Delete(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete auth0 client, result: %v error: %v", res, errs)
 	}
@@ -226,7 +226,7 @@ func (authClient *AuthClient) DeleteClientById(id string) error {
 // Api
 func (authClient *AuthClient) GetApiById(id string) (*Api, error) {
 
-	_, body, errs := gorequest.New().Get(authClient.config.apiUri + "resource-servers/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Get(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could parse api response from auth0, error: %v", errs)
@@ -247,7 +247,7 @@ func (authClient *AuthClient) GetApiById(id string) (*Api, error) {
 
 func (authClient *AuthClient) CreateApi(apiRequest *ApiRequest) (*Api, error) {
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri + "resource-servers").Send(apiRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"resource-servers").Send(apiRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create api in auth0, error: %v", errs)
@@ -268,7 +268,7 @@ func (authClient *AuthClient) CreateApi(apiRequest *ApiRequest) (*Api, error) {
 
 func (authClient *AuthClient) UpdateApiById(id string, apiRequest *ApiRequest) (*Api, error) {
 
-	_, body, errs := gorequest.New().Patch(authClient.config.apiUri + "resource-servers/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Patch(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 api, error: %v", errs)
 	}
@@ -288,7 +288,7 @@ func (authClient *AuthClient) UpdateApiById(id string, apiRequest *ApiRequest) (
 
 func (authClient *AuthClient) DeleteApiById(id string) error {
 
-	res, _, errs := gorequest.New().Delete(authClient.config.apiUri + "resource-servers/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	res, _, errs := gorequest.New().Delete(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete auth0 api, result: %v error: %v", res, errs)
 	}
@@ -305,7 +305,7 @@ func (authClient *AuthClient) GetClientGrantByClientIdAndAudience(clientId strin
 	}
 
 	_, body, errs := gorequest.New().
-		Get(authClient.config.apiUri + "client-grants").
+		Get(authClient.config.apiUri+"client-grants").
 		Query(queryParams).Set("Authorization", authClient.config.getAuthenticationHeader()).
 		End()
 
@@ -328,7 +328,7 @@ func (authClient *AuthClient) GetClientGrantByClientIdAndAudience(clientId strin
 
 func (authClient *AuthClient) CreateClientGrant(clientGrantRequest *ClientGrantRequest) (*ClientGrant, error) {
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri + "client-grants").Send(clientGrantRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"client-grants").Send(clientGrantRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create client-grant in auth0, error: %v", errs)
@@ -349,7 +349,7 @@ func (authClient *AuthClient) CreateClientGrant(clientGrantRequest *ClientGrantR
 
 func (authClient *AuthClient) UpdateClientGrantById(id string, clientGrantRequest *ClientGrantRequest) (*ClientGrant, error) {
 
-	_, body, errs := gorequest.New().Patch(authClient.config.apiUri + "client-grants/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Patch(authClient.config.apiUri+"client-grants/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 client-grant, error: %v", errs)
 	}
@@ -369,7 +369,7 @@ func (authClient *AuthClient) UpdateClientGrantById(id string, clientGrantReques
 
 func (authClient *AuthClient) DeleteClientGrantById(id string) error {
 
-	res, _, errs := gorequest.New().Delete(authClient.config.apiUri + "client-grants/" + id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	res, _, errs := gorequest.New().Delete(authClient.config.apiUri+"client-grants/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 	if errs != nil {
 		return fmt.Errorf("could not delete auth0 client-grant, result: %v error: %v", res, errs)
 	}

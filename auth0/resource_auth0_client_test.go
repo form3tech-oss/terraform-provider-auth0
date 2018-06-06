@@ -59,8 +59,6 @@ func TestAccAuth0ClientImport(t *testing.T) {
 	})
 }
 
-
-
 func testAccCheckAuth0ClientDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*AuthClient)
