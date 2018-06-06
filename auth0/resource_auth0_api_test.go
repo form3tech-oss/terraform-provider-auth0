@@ -125,7 +125,7 @@ const testImportApiConfig = `
 
 resource "auth0_api" "test_api" {
 	name 		= "https://api.example.com/api_test/2"
-	identifier 	= "https://api.example.com/api_test"
+	identifier 	= "https://api.example.com/api_test_import"
 }
 
 `
