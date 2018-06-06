@@ -142,7 +142,7 @@ resource "auth0_client" "test_client" {
 const testImportClientConfig = `
 
 resource "auth0_client" "test_client" {
-	name						= "test client"
+	name						= "test client import"
 	app_type 					= "non_interactive"
 	grant_types 				= ["password"]
 	token_endpoint_auth_method 	= "none"
