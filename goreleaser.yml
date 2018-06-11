@@ -1,5 +1,5 @@
 builds:
-  - binary: terraform-provider-auth0
+  - binary: terraform-provider_v{{.Version}}
     goos:
       - darwin
       - linux
