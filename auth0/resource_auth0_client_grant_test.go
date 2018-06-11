@@ -18,7 +18,7 @@ func TestAccAuth0ClientGrant(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAuth0ClientGrantExists("auth0_client_grant.test_client_grant"),
 					resource.TestCheckResourceAttrSet("auth0_client_grant.test_client_grant", "client_id"),
-					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "audience", "https://api.example.com"),
+					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "audience", "https://api.example.com/client_grant_test"),
 					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "scope.0", "something"),
 				),
 			},
@@ -27,7 +27,7 @@ func TestAccAuth0ClientGrant(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAuth0ClientGrantExists("auth0_client_grant.test_client_grant"),
 					resource.TestCheckResourceAttrSet("auth0_client_grant.test_client_grant", "client_id"),
-					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "audience", "https://api.example.com"),
+					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "audience", "https://api.example.com/client_grant_test"),
 					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "scope.0", "something_else"),
 				),
 			},
@@ -95,7 +95,7 @@ func testAccCheckAuth0ClientGrantExists(resourceKey string) resource.TestCheckFu
 
 const testCreateClientGrantConfig = `
 resource "auth0_client" "test_client" {
-	name						= "test client"
+	name						= "test client grant"
 	app_type 					= "non_interactive"
 	grant_types 				= ["password"]
 	token_endpoint_auth_method 	= "none"
@@ -106,13 +106,13 @@ resource "auth0_client" "test_client" {
 }
 
 resource "auth0_api" "test_api" {
-	name 		= "https://api.example.com"
-	identifier 	= "https://api.example.com"
+	name 		= "https://api.example.com/client_grant_test"
+	identifier 	= "https://api.example.com/client_grant_test"
 }
 
 resource "auth0_client_grant" "test_client_grant" {
 	client_id 	= "${auth0_client.test_client.id}"
-	audience 	= "https://api.example.com"
+	audience 	= "https://api.example.com/client_grant_test"
 	scope 		= ["something"]
 }
 
@@ -132,39 +132,13 @@ resource "auth0_client" "test_client" {
 }
 
 resource "auth0_api" "test_api" {
-	name 		= "https://api.example.com"
-	identifier 	= "https://api.example.com"
+	name 		= "https://api.example.com/client_grant_test"
+	identifier 	= "https://api.example.com/client_grant_test"
 }
 
 resource "auth0_client_grant" "test_client_grant" {
 	client_id 	= "${auth0_client.test_client.id}"
-	audience 	= "https://api.example.com"
-	scope 		= ["something_else"]
-}
-
-`
-
-const testImportClientGrantConfig = `
-
-resource "auth0_client" "test_client" {
-	name						= "test client"
-	app_type 					= "non_interactive"
-	grant_types 				= ["password"]
-	token_endpoint_auth_method 	= "none"
-    client_metadata				= {
-		item1 = "value1"
-		item2 = "value2"
-	}
-}
-
-resource "auth0_api" "test_api" {
-	name 		= "https://api.example.com"
-	identifier 	= "https://api.example.com"
-}
-
-resource "auth0_client_grant" "test_client_grant" {
-	client_id 	= "${auth0_client.test_client.id}"
-	audience 	= "https://api.example.com"
+	audience 	= "https://api.example.com/client_grant_test"
 	scope 		= ["something_else"]
 }
 

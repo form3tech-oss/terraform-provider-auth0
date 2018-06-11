@@ -17,16 +17,16 @@ func TestAccAuth0Api(t *testing.T) {
 				Config: testCreateApiConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAuth0ApiExists("auth0_api.test_api"),
-					resource.TestCheckResourceAttr("auth0_api.test_api", "name", "https://api.example.com/1"),
-					resource.TestCheckResourceAttr("auth0_api.test_api", "identifier", "https://api.example.com"),
+					resource.TestCheckResourceAttr("auth0_api.test_api", "name", "https://api.example.com/api_test/1"),
+					resource.TestCheckResourceAttr("auth0_api.test_api", "identifier", "https://api.example.com/api_test"),
 				),
 			},
 			{
 				Config: testUpdateApiConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAuth0ApiExists("auth0_api.test_api"),
-					resource.TestCheckResourceAttr("auth0_api.test_api", "name", "https://api.example.com/2"),
-					resource.TestCheckResourceAttr("auth0_api.test_api", "identifier", "https://api.example.com"),
+					resource.TestCheckResourceAttr("auth0_api.test_api", "name", "https://api.example.com/api_test/2"),
+					resource.TestCheckResourceAttr("auth0_api.test_api", "identifier", "https://api.example.com/api_test"),
 				),
 			},
 		},
@@ -106,8 +106,8 @@ func testAccCheckAuth0ApiExists(resourceKey string) resource.TestCheckFunc {
 const testCreateApiConfig = `
 
 resource "auth0_api" "test_api" {
-	name 		= "https://api.example.com/1"
-	identifier 	= "https://api.example.com"
+	name 		= "https://api.example.com/api_test/1"
+	identifier 	= "https://api.example.com/api_test"
 }
 
 `
@@ -115,8 +115,8 @@ resource "auth0_api" "test_api" {
 const testUpdateApiConfig = `
 
 resource "auth0_api" "test_api" {
-	name 		= "https://api.example.com/2"
-	identifier 	= "https://api.example.com"
+	name 		= "https://api.example.com/api_test/2"
+	identifier 	= "https://api.example.com/api_test"
 }
 
 `
@@ -124,8 +124,8 @@ resource "auth0_api" "test_api" {
 const testImportApiConfig = `
 
 resource "auth0_api" "test_api" {
-	name 		= "https://api.example.com/2"
-	identifier 	= "https://api.example.com"
+	name 		= "https://api.example.com/api_test/2"
+	identifier 	= "https://api.example.com/api_test_import"
 }
 
 `
