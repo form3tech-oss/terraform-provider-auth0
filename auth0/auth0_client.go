@@ -31,6 +31,14 @@ type User struct {
 	Name          string                 `json:"name,omitempty"`
 	UserMetaData  map[string]interface{} `json:"user_metadata,omitempty"`
 	EmailVerified bool                   `json:"email_verified,omitempty"`
+	Identities    []Identity             `json:"identities,omitempty"`
+}
+
+type Identity struct {
+	Connection string `json:"connection,omitempty"`
+	UserId     string `json:"user_id,omitempty"`
+	Provider   string `json:"provider,omitempty"`
+	IsSocial   bool   `json:"isSocial,omitempty"`
 }
 
 type ClientRequest struct {

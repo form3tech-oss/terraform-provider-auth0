@@ -43,6 +43,24 @@ func TestAccAuth0User(t *testing.T) {
 	})
 }
 
+func TestAccAuth0UserImport(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAuth0UserDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testImportUserConfig,
+			},
+			{
+				ResourceName:            "auth0_user.test_user",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
 func testAccCheckAuth0UserDestroy(state *terraform.State) error {
 
 	client := testAccProvider.Meta().(*AuthClient)
@@ -115,6 +133,21 @@ resource "auth0_user" "test_user" {
 	email 			= "foo@example.com"
 	name 			= "user1234"
 	password 		= "8aabf4be-2ad5-48b6-84aa-3dcd112716f0"
+	user_metadata 	= {
+		item1 = "value4"
+		item2 = "value3"
+	}
+	email_verified 	= true
+}
+`
+
+const testImportUserConfig = `
+
+resource "auth0_user" "test_user" {
+	connection_type = "Username-Password-Authentication"
+	email 			= "bar@example.com"
+	name 			= "user1234"
+	password = "8aabf4be-2ad5-48b6-84aa-3dcd112716f0"
 	user_metadata 	= {
 		item1 = "value4"
 		item2 = "value3"
