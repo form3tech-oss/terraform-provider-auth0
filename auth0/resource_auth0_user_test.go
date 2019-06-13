@@ -145,7 +145,7 @@ const testImportUserConfig = `
 
 resource "auth0_user" "test_user" {
 	connection_type = "Username-Password-Authentication"
-	email 			= "foo@example.com"
+	email 			= "bar@example.com"
 	name 			= "user1234"
 	password = "8aabf4be-2ad5-48b6-84aa-3dcd112716f0"
 	user_metadata 	= {
