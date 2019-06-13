@@ -10,15 +10,16 @@ func resourceAuth0User() *schema.Resource {
 		Create: resourceAuth0UserCreate,
 		Read:   resourceAuth0UserRead,
 		Delete: resourceAuth0UserDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"user_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return old == "auth0|"+new
-				},
+				ForceNew: true,
 			},
 			"connection_type": &schema.Schema{
 				Type:     schema.TypeString,
@@ -86,10 +87,17 @@ func resourceAuth0UserRead(d *schema.ResourceData, meta interface{}) error {
 	if user == nil {
 		d.SetId("")
 	} else {
+		d.Set("user_id", user.UserId)
 		d.Set("email", user.Email)
 		d.Set("name", user.Name)
 		d.Set("user_metadata", user.UserMetaData)
 		d.Set("email_verified", user.EmailVerified)
+
+		// TODO: We should model identities properly as more than one identity for a user
+		// might exist
+		if len(user.Identities) > 0 {
+			d.Set("connection_type", user.Identities[0].Connection)
+		}
 	}
 
 	return nil
