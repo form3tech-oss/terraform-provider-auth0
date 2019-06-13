@@ -12,6 +12,14 @@ func resourceAuth0User() *schema.Resource {
 		Delete: resourceAuth0UserDelete,
 
 		Schema: map[string]*schema.Schema{
+			"user_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return old == "auth0|"+new
+				},
+			},
 			"connection_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
