@@ -132,7 +132,13 @@ func (authClient *AuthClient) CreateUser(userRequest *UserRequest) (*User, error
 
 func (authClient *AuthClient) UpdateUserById(id string, userRequest *UserRequest) (*User, error) {
 
-	_, body, errs := gorequest.New().Patch(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().
+		Patch(authClient.config.apiUri+"users/"+id).
+		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Set("Content-Type", "application/json").
+		Send(userRequest).
+		End()
+
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 user, error: %v", errs)
 	}

@@ -9,6 +9,7 @@ func resourceAuth0User() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAuth0UserCreate,
 		Read:   resourceAuth0UserRead,
+		Update: resourceAuth0UserUpdate,
 		Delete: resourceAuth0UserDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -29,29 +30,24 @@ func resourceAuth0User() *schema.Resource {
 			"email": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"password": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"user_metadata": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     schema.TypeString,
 				Default:  nil,
-				ForceNew: true,
 			},
 			"email_verified": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: true,
 			},
 		},
 	}
@@ -72,6 +68,23 @@ func resourceAuth0UserCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(user.UserId)
 
 	return resourceAuth0UserRead(d, meta)
+}
+
+func resourceAuth0UserUpdate(d *schema.ResourceData, meta interface{}) error {
+	auth0Client := meta.(*AuthClient)
+
+	updateUserRequests := createUserUpdatesFromResourceData(d)
+	userId := d.Id()
+
+	for _, update := range updateUserRequests {
+		_, err := auth0Client.UpdateUserById(userId, update)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func resourceAuth0UserRead(d *schema.ResourceData, meta interface{}) error {
@@ -114,6 +127,30 @@ func resourceAuth0UserDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+// Given ResourceData from terraform, generate a list of patches to apply sequentially.
+// We do this to reconcile state against the auth0 API, you can't update email_verified, and
+// passsword, or email in one API call for example, so it must be updated in multiple requests.
+func createUserUpdatesFromResourceData(d *schema.ResourceData) []*UserRequest {
+
+	// The first patch contains everything but email_verified, and password state
+	userRequestA := &UserRequest{}
+
+	userRequestA.Connection = readStringFromResource(d, "connection_type")
+	userRequestA.Email = readStringFromResource(d, "email")
+	userRequestA.Name = readStringFromResource(d, "name")
+	userRequestA.UserMetaData = readMapFromResource(d, "user_metadata")
+
+	// Second contains only the password
+	userRequestB := &UserRequest{}
+	userRequestB.Password = readStringFromResource(d, "password")
+
+	// Final updates the email_verified state
+	userRequestC := &UserRequest{}
+	userRequestC.EmailVerified = readBoolFromResource(d, "email_verified")
+
+	return []*UserRequest{userRequestA, userRequestB, userRequestC}
 }
 
 func createUserRequestFromResourceData(d *schema.ResourceData) *UserRequest {
