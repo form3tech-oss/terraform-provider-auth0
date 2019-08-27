@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/form3tech-oss/terraform-provider-auth0/auth0"
 	"github.com/hashicorp/terraform/plugin"
-	"github.com/kevholditch/terraform-provider-auth0/auth0"
 )
 
 func main() {
