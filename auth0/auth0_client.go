@@ -1,6 +1,7 @@
 package auth0
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/parnurzeal/gorequest"
@@ -66,6 +67,31 @@ type ClientGrantRequest struct {
 	ClientId string   `json:"client_id,omitempty"`
 	Audience string   `json:"audience,omitempty"`
 	Scope    []string `json:"scope,omitempty"`
+}
+
+func (cgr *ClientGrantRequest) MarshalJSON() ([]byte, error) {
+	b := bytes.NewBufferString("{")
+
+	b.WriteString(`"client_id": "` + cgr.ClientId + `"`)
+	b.WriteRune(',')
+
+	b.WriteString(`"audience": ` + cgr.Audience + `"`)
+	b.WriteRune(',')
+
+	b.WriteString(`"scope": [`)
+	if cgr.Scope != nil {
+		for idx, scope := range cgr.Scope {
+			if idx != 0 {
+				b.WriteRune(',')
+			}
+			b.WriteString(`"` + scope + `"`)
+		}
+	}
+	b.WriteRune(']')
+
+	b.WriteRune('}')
+
+	return b.Bytes(), nil
 }
 
 type ClientGrant struct {

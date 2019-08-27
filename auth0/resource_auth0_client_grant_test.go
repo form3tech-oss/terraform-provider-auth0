@@ -2,12 +2,87 @@ package auth0
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"testing"
 )
 
 func TestAccAuth0ClientGrant(t *testing.T) {
+	testUUID := uuid.New().String()
+
+	testCreateClientGrantConfig := `
+resource "auth0_client" "test_client" {
+	name						= "test client grant ` + testUUID + `"
+	app_type 					= "non_interactive"
+	grant_types 				= ["password"]
+	token_endpoint_auth_method 	= "none"
+    client_metadata				= {
+		item1 = "value1"
+		item2 = "value2"
+	}
+}
+
+resource "auth0_api" "test_api" {
+	name 		= "https://api.example.com/client_grant_test` + testUUID + `"
+	identifier 	= "https://api.example.com/client_grant_test` + testUUID + `"
+}
+
+resource "auth0_client_grant" "test_client_grant" {
+	client_id 	= "${auth0_client.test_client.id}"
+	audience 	= "https://api.example.com/client_grant_test` + testUUID + `"
+	scope 		= ["something"]
+}
+`
+
+	testCreateClientGrantConfigNoScope := `
+resource "auth0_client" "test_client_no_scope" {
+	name						= "test client grant no scope ` + testUUID + `"
+	app_type 					= "non_interactive"
+	grant_types 				= ["password"]
+	token_endpoint_auth_method 	= "none"
+    client_metadata				= {
+		item1 = "value1"
+		item2 = "value2"
+	}
+}
+
+resource "auth0_api" "test_api_no_scope" {
+	name 		= "https://api.example.com/client_grant_test_no_scope` + testUUID + `"
+	identifier 	= "https://api.example.com/client_grant_test_no_scope` + testUUID + `"
+}
+
+resource "auth0_client_grant" "test_client_grant_no_scope" {
+	client_id 	= "${auth0_client.test_client_no_scope.id}"
+	audience 	= "https://api.example.com/client_grant_test` + testUUID + `"
+}
+`
+
+	testUpdateClientGrantConfig := `
+
+resource "auth0_client" "test_client" {
+	name						= "test client ` + testUUID + `"
+	app_type 					= "non_interactive"
+	grant_types 				= ["password"]
+	token_endpoint_auth_method 	= "none"
+    client_metadata				= {
+		item1 = "value1"
+		item2 = "value2"
+	}
+}
+
+resource "auth0_api" "test_api" {
+	name 		= "https://api.example.com/client_grant_test` + testUUID + `"
+	identifier 	= "https://api.example.com/client_grant_test` + testUUID + `"
+}
+
+resource "auth0_client_grant" "test_client_grant" {
+	client_id 	= "${auth0_client.test_client.id}"
+	audience 	= "https://api.example.com/client_grant_test` + testUUID + `"
+	scope 		= ["something_else"]
+}
+`
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -18,7 +93,7 @@ func TestAccAuth0ClientGrant(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAuth0ClientGrantExists("auth0_client_grant.test_client_grant"),
 					resource.TestCheckResourceAttrSet("auth0_client_grant.test_client_grant", "client_id"),
-					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "audience", "https://api.example.com/client_grant_test"),
+					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "audience", "https://api.example.com/client_grant_test"+testUUID),
 					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "scope.0", "something"),
 				),
 			},
@@ -27,7 +102,7 @@ func TestAccAuth0ClientGrant(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAuth0ClientGrantExists("auth0_client_grant.test_client_grant_no_scope"),
 					resource.TestCheckResourceAttrSet("auth0_client_grant.test_client_grant_no_scope", "client_id"),
-					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant_no_scope", "audience", "https://api.example.com/client_grant_test_no_scope"),
+					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant_no_scope", "audience", "https://api.example.com/client_grant_test_no_scope"+testUUID),
 					resource.TestCheckNoResourceAttr("auth0_client_grant.test_client_grant_no_scope", "scope"),
 				),
 			},
@@ -36,7 +111,7 @@ func TestAccAuth0ClientGrant(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAuth0ClientGrantExists("auth0_client_grant.test_client_grant"),
 					resource.TestCheckResourceAttrSet("auth0_client_grant.test_client_grant", "client_id"),
-					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "audience", "https://api.example.com/client_grant_test"),
+					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "audience", "https://api.example.com/client_grant_test"+testUUID),
 					resource.TestCheckResourceAttr("auth0_client_grant.test_client_grant", "scope.0", "something_else"),
 				),
 			},
@@ -101,78 +176,3 @@ func testAccCheckAuth0ClientGrantExists(resourceKey string) resource.TestCheckFu
 		return nil
 	}
 }
-
-const testCreateClientGrantConfig = `
-resource "auth0_client" "test_client" {
-	name						= "test client grant"
-	app_type 					= "non_interactive"
-	grant_types 				= ["password"]
-	token_endpoint_auth_method 	= "none"
-    client_metadata				= {
-		item1 = "value1"
-		item2 = "value2"
-	}
-}
-
-resource "auth0_api" "test_api" {
-	name 		= "https://api.example.com/client_grant_test"
-	identifier 	= "https://api.example.com/client_grant_test"
-}
-
-resource "auth0_client_grant" "test_client_grant" {
-	client_id 	= "${auth0_client.test_client.id}"
-	audience 	= "https://api.example.com/client_grant_test"
-	scope 		= ["something"]
-}
-
-`
-
-const testCreateClientGrantConfigNoScope = `
-resource "auth0_client" "test_client_no_scope" {
-	name						= "test client grant no scope"
-	app_type 					= "non_interactive"
-	grant_types 				= ["password"]
-	token_endpoint_auth_method 	= "none"
-    client_metadata				= {
-		item1 = "value1"
-		item2 = "value2"
-	}
-}
-
-resource "auth0_api" "test_api_no_scope" {
-	name 		= "https://api.example.com/client_grant_test_no_scope"
-	identifier 	= "https://api.example.com/client_grant_test_no_scope"
-}
-
-resource "auth0_client_grant" "test_client_grant_no_scope" {
-	client_id 	= "${auth0_client.test_client.id}"
-	audience 	= "https://api.example.com/client_grant_test"
-}
-
-`
-
-const testUpdateClientGrantConfig = `
-
-resource "auth0_client" "test_client" {
-	name						= "test client"
-	app_type 					= "non_interactive"
-	grant_types 				= ["password"]
-	token_endpoint_auth_method 	= "none"
-    client_metadata				= {
-		item1 = "value1"
-		item2 = "value2"
-	}
-}
-
-resource "auth0_api" "test_api" {
-	name 		= "https://api.example.com/client_grant_test"
-	identifier 	= "https://api.example.com/client_grant_test"
-}
-
-resource "auth0_client_grant" "test_client_grant" {
-	client_id 	= "${auth0_client.test_client.id}"
-	audience 	= "https://api.example.com/client_grant_test"
-	scope 		= ["something_else"]
-}
-
-`

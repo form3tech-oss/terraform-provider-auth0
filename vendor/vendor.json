@@ -1039,6 +1039,12 @@
 			"revisionTime": "2017-02-15T23:32:05Z"
 		},
 		{
+			"checksumSHA1": "s5tdcjh84+tiKS3oSq77mzjB970=",
+			"path": "github.com/google/uuid",
+			"revision": "c2e93f3ae59f2904160ceaab466009f965df46d6",
+			"revisionTime": "2019-04-16T17:24:45Z"
+		},
+		{
 			"checksumSHA1": "y1/eOdw+BOXCuT83J7mP3ReXaf8=",
 			"path": "github.com/googleapis/gax-go",
 			"revision": "317e0006254c44a0ac427cc52a0e083ff0b9622f",
@@ -3103,5 +3109,5 @@
 			"revisionTime": "2018-01-09T11:43:31Z"
 		}
 	],
-	"rootPath": "github.com/kevholditch/terraform-provider-auth0"
+	"rootPath": "github.com/form3tech-oss/terraform-provider-auth0"
 }
