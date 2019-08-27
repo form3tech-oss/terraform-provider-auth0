@@ -70,10 +70,14 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		GrantType:    "client_credentials",
 	}
 
-	_, body, errs := gorequest.New().Post("https://" + domain + "/oauth/token").Send(auth0LoginRequest).End()
+	resp, body, errs := gorequest.New().Post("https://" + domain + "/oauth/token").Send(auth0LoginRequest).End()
 
 	if errs != nil {
-		return nil, fmt.Errorf("could log in to auth0, error: %v", errs)
+		return nil, fmt.Errorf("could not log in to auth0, error: %v", errs)
+	}
+
+	if resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("auth0 /oauth/token request failed. status: %d, body: %s", resp.StatusCode, body)
 	}
 
 	loginResponse := &LoginResponse{}
