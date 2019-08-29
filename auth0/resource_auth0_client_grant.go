@@ -56,13 +56,20 @@ func resourceAuth0ClientGrantCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAuth0ClientGrantRead(d *schema.ResourceData, meta interface{}) error {
+	var clientGrant *ClientGrant
+	var err error
 
 	auth0Client := meta.(*AuthClient)
 
 	clientId := readStringFromResource(d, "client_id")
 	audience := readStringFromResource(d, "audience")
 
-	clientGrant, err := auth0Client.GetClientGrantByClientIdAndAudience(clientId, audience)
+	if clientId != "" && audience != "" {
+		clientGrant, err = auth0Client.GetClientGrantByClientIdAndAudience(clientId, audience)
+	} else {
+		// This is necessary for ID-only import but it's significantly heavier than querying by client ID and audience
+		clientGrant, err = auth0Client.GetClientGrantById(d.Id())
+	}
 
 	if err != nil {
 		return fmt.Errorf("could not find auth0 client-grant: %v", err)

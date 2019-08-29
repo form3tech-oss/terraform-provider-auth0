@@ -332,6 +332,36 @@ func (authClient *AuthClient) DeleteApiById(id string) error {
 	return nil
 }
 
+// GetClientGrantById retrieves a client grant based on ID.
+//
+// Note that this is significantly heavier than GetClientGrantByClientIdAndAudience due to the Auth0 API's lack of
+// ID-based retrieval.
+func (authClient *AuthClient) GetClientGrantById(id string) (*ClientGrant, error) {
+
+	_, body, errs := gorequest.New().
+		Get(authClient.config.apiUri+"client-grants").
+		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		End()
+
+	if errs != nil {
+		return nil, fmt.Errorf("could parse client-grant response from auth0, error: %v", errs)
+	}
+
+	clientGrant := make([]ClientGrant, 0)
+	err := json.Unmarshal([]byte(body), &clientGrant)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse auth0 get client-grant response, error: %v %s", err, body)
+	}
+
+	for _, grant := range clientGrant {
+		if grant.Id == id {
+			return &grant, nil
+		}
+	}
+
+	return nil, nil
+}
+
 // ClientGrant
 func (authClient *AuthClient) GetClientGrantByClientIdAndAudience(clientId string, audience string) (*ClientGrant, error) {
 
