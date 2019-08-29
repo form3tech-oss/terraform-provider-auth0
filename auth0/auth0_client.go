@@ -1,6 +1,7 @@
 package auth0
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/parnurzeal/gorequest"
@@ -74,6 +75,27 @@ type ClientGrantRequest struct {
 	ClientId string   `json:"client_id,omitempty"`
 	Audience string   `json:"audience,omitempty"`
 	Scope    []string `json:"scope,omitempty"`
+}
+
+func (cgr *ClientGrantRequest) MarshalJSON() ([]byte, error) {
+	b := bytes.NewBufferString("{")
+
+	b.WriteString(`"client_id": "` + cgr.ClientId + `",`)
+	b.WriteString(`"audience": "` + cgr.Audience + `",`)
+	b.WriteString(`"scope": [`)
+
+	if cgr.Scope != nil {
+		for idx, scope := range cgr.Scope {
+			if idx > 0 {
+				b.WriteRune(',')
+			}
+
+			b.WriteString(`"` + scope + `"`)
+		}
+	}
+
+	b.WriteString("]}")
+	return b.Bytes(), nil
 }
 
 type ClientGrant struct {
@@ -341,15 +363,19 @@ func (authClient *AuthClient) GetClientGrantByClientIdAndAudience(clientId strin
 }
 
 func (authClient *AuthClient) CreateClientGrant(clientGrantRequest *ClientGrantRequest) (*ClientGrant, error) {
+	reqJSON, err := json.Marshal(clientGrantRequest)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal client grant request: %v", err)
+	}
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"client-grants").Send(clientGrantRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"client-grants").SendString(string(reqJSON)).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create client-grant in auth0, error: %v", errs)
 	}
 
 	createdClientGrant := &ClientGrant{}
-	err := json.Unmarshal([]byte(body), createdClientGrant)
+	err = json.Unmarshal([]byte(body), createdClientGrant)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse auth0 client-grant creation response, error: %v %s", err, body)
 	}
