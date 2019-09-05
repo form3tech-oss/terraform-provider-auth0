@@ -115,7 +115,7 @@ func (authClient *AuthClient) GetUserById(id string) (*User, error) {
 
 	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
 	}
 
@@ -206,7 +206,7 @@ func (authClient *AuthClient) GetClientById(id string) (*Client, error) {
 
 	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
 	}
 
@@ -290,7 +290,7 @@ func (authClient *AuthClient) GetApiById(id string) (*Api, error) {
 
 	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
 	}
 
@@ -384,7 +384,7 @@ func (authClient *AuthClient) GetClientGrantByClientIdAndAudience(clientId strin
 		Query(queryParams).Set("Authorization", authClient.config.getAuthenticationHeader()).
 		End()
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
 	}
 
