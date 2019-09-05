@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+
 	"github.com/parnurzeal/gorequest"
 )
 
@@ -112,7 +113,11 @@ func (config *Config) getAuthenticationHeader() string {
 // User
 func (authClient *AuthClient) GetUserById(id string) (*User, error) {
 
-	_, body, errs := gorequest.New().Get(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
 
 	if errs != nil {
 		return nil, fmt.Errorf("could parse user response from auth0, error: %v", errs)
@@ -133,7 +138,11 @@ func (authClient *AuthClient) GetUserById(id string) (*User, error) {
 
 func (authClient *AuthClient) CreateUser(userRequest *UserRequest) (*User, error) {
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"users").Send(userRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Post(authClient.config.apiUri+"users").Send(userRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create user in auth0, error: %v", errs)
@@ -154,12 +163,16 @@ func (authClient *AuthClient) CreateUser(userRequest *UserRequest) (*User, error
 
 func (authClient *AuthClient) UpdateUserById(id string, userRequest *UserRequest) (*User, error) {
 
-	_, body, errs := gorequest.New().
+	resp, body, errs := gorequest.New().
 		Patch(authClient.config.apiUri+"users/"+id).
 		Set("Authorization", authClient.config.getAuthenticationHeader()).
 		Set("Content-Type", "application/json").
 		Send(userRequest).
 		End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
 
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 user, error: %v", errs)
@@ -191,7 +204,11 @@ func (authClient *AuthClient) DeleteUserById(id string) error {
 // Client
 func (authClient *AuthClient) GetClientById(id string) (*Client, error) {
 
-	_, body, errs := gorequest.New().Get(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
 
 	if errs != nil {
 		return nil, fmt.Errorf("could parse client response from auth0, error: %v", errs)
@@ -212,7 +229,11 @@ func (authClient *AuthClient) GetClientById(id string) (*Client, error) {
 
 func (authClient *AuthClient) CreateClient(clientRequest *ClientRequest) (*Client, error) {
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"clients").Send(clientRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Post(authClient.config.apiUri+"clients").Send(clientRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create client in auth0, error: %v", errs)
@@ -232,7 +253,12 @@ func (authClient *AuthClient) CreateClient(clientRequest *ClientRequest) (*Clien
 }
 
 func (authClient *AuthClient) UpdateClientById(id string, clientRequest *ClientRequest) (*Client, error) {
-	_, body, errs := gorequest.New().Patch(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Patch(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
+
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 client, error: %v", errs)
 	}
@@ -262,7 +288,11 @@ func (authClient *AuthClient) DeleteClientById(id string) error {
 // Api
 func (authClient *AuthClient) GetApiById(id string) (*Api, error) {
 
-	_, body, errs := gorequest.New().Get(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
 
 	if errs != nil {
 		return nil, fmt.Errorf("could parse api response from auth0, error: %v", errs)
@@ -283,7 +313,11 @@ func (authClient *AuthClient) GetApiById(id string) (*Api, error) {
 
 func (authClient *AuthClient) CreateApi(apiRequest *ApiRequest) (*Api, error) {
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"resource-servers").Send(apiRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Post(authClient.config.apiUri+"resource-servers").Send(apiRequest).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create api in auth0, error: %v", errs)
@@ -304,7 +338,12 @@ func (authClient *AuthClient) CreateApi(apiRequest *ApiRequest) (*Api, error) {
 
 func (authClient *AuthClient) UpdateApiById(id string, apiRequest *ApiRequest) (*Api, error) {
 
-	_, body, errs := gorequest.New().Patch(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Patch(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
+
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 api, error: %v", errs)
 	}
@@ -340,10 +379,14 @@ func (authClient *AuthClient) GetClientGrantByClientIdAndAudience(clientId strin
 		"audience":  audience,
 	}
 
-	_, body, errs := gorequest.New().
+	resp, body, errs := gorequest.New().
 		Get(authClient.config.apiUri+"client-grants").
 		Query(queryParams).Set("Authorization", authClient.config.getAuthenticationHeader()).
 		End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
 
 	if errs != nil {
 		return nil, fmt.Errorf("could parse client-grant response from auth0, error: %v", errs)
@@ -368,7 +411,11 @@ func (authClient *AuthClient) CreateClientGrant(clientGrantRequest *ClientGrantR
 		return nil, fmt.Errorf("failed to marshal client grant request: %v", err)
 	}
 
-	_, body, errs := gorequest.New().Post(authClient.config.apiUri+"client-grants").SendString(string(reqJSON)).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Post(authClient.config.apiUri+"client-grants").SendString(string(reqJSON)).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
 
 	if errs != nil {
 		return nil, fmt.Errorf("could create client-grant in auth0, error: %v", errs)
@@ -389,7 +436,12 @@ func (authClient *AuthClient) CreateClientGrant(clientGrantRequest *ClientGrantR
 
 func (authClient *AuthClient) UpdateClientGrantById(id string, clientGrantRequest *ClientGrantRequest) (*ClientGrant, error) {
 
-	_, body, errs := gorequest.New().Patch(authClient.config.apiUri+"client-grants/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().Patch(authClient.config.apiUri+"client-grants/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
+	}
+
 	if errs != nil {
 		return nil, fmt.Errorf("could not update auth0 client-grant, error: %v", errs)
 	}
