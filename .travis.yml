@@ -4,7 +4,7 @@ go:
 services:
 - docker
 script:
-- make travisbuild
+- make
 deploy:
 - provider: script
   skip_cleanup: true
