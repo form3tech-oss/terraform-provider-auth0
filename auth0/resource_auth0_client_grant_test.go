@@ -29,7 +29,7 @@ resource "auth0_api" "test_api" {
 }
 
 resource "auth0_client_grant" "test_client_grant" {
-	client_id 	= "${auth0_client.test_client.id}"
+	client_id 	= auth0_client.test_client.id
 	audience 	= "https://api.example.com/client_grant_test_` + testUUID + `"
 	scope 		= ["something"]
 }
