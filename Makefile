@@ -2,8 +2,6 @@ GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 
 default: build test testacc
 
-travisbuild: deps default
-
 test: fmtcheck
 	go test -v . ./auth0
 
@@ -15,14 +13,6 @@ build: fmtcheck vet testacc
 	@mkdir -p ~/.terraform.d/plugins/
 	@cp $(GOPATH)/bin/terraform-provider-auth0 ~/.terraform.d/plugins/terraform-provider-auth0
 	@echo "Build succeeded"
-
-build-gox: deps fmtcheck vet
-	gox -osarch="linux/amd64 windows/amd64 darwin/amd64" \
-	-output="pkg/{{.OS}}_{{.Arch}}/terraform-provider-auth0" .
-
-deps:
-	go get -u golang.org/x/net/context; \
-    go get -u github.com/mitchellh/gox; \
 
 clean:
 	rm -rf pkg/
