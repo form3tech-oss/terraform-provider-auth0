@@ -1,12 +1,11 @@
 package auth0
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/parnurzeal/gorequest"
 	"log"
+	"time"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -27,6 +26,20 @@ func Provider() terraform.ResourceProvider {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("AUTH0_CLIENT_SECRET", nil),
 			},
+			"auth0_request_max_retry_count": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     2,
+				Description: "Max retry on requests to Auth0",
+			},
+			"auth0_time_between_retries": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				//second, cannot use time time.Second here as under the hood provider framework users cty.Value dynamic types
+				//time.Second is translated to 1000000000 (Nanoseconds) which ends up with error panic: can't convert 1000000000 to cty.Value
+				Default:     1000,
+				Description: "Time to wait between retried requests to Auth0 (in milliseconds)",
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -41,9 +54,11 @@ func Provider() terraform.ResourceProvider {
 }
 
 type Config struct {
-	domain      string
-	accessToken string
-	apiUri      string
+	domain             string
+	accessToken        string
+	apiUri             string
+	maxRetryCount      int
+	timeBetweenRetries time.Duration
 }
 
 type LoginRequest struct {
@@ -62,31 +77,23 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	domain := d.Get("domain").(string)
 	apiUri := "https://" + domain + "/api/v2/"
-
-	auth0LoginRequest := &LoginRequest{
-		ClientId:     d.Get("auth0_client_id").(string),
-		ClientSecret: d.Get("auth0_client_secret").(string),
-		Audience:     apiUri,
-		GrantType:    "client_credentials",
-	}
-
-	_, body, errs := gorequest.New().Post("https://" + domain + "/oauth/token").Send(auth0LoginRequest).End()
-
-	if errs != nil {
-		return nil, fmt.Errorf("could log in to auth0, error: %v", errs)
-	}
-
-	loginResponse := &LoginResponse{}
-	err := json.Unmarshal([]byte(body), loginResponse)
-	if err != nil {
-		return nil, fmt.Errorf("could not parse auth0 login response, error: %v %s", err, body)
-	}
+	clientId := d.Get("auth0_client_id").(string)
+	clientSecret := d.Get("auth0_client_secret").(string)
+	maxRetryCount := d.Get("auth0_request_max_retry_count").(int)
+	timeBetweenRetries := d.Get("auth0_request_max_retry_count").(int)
 
 	config := &Config{
-		domain:      domain,
-		accessToken: loginResponse.AccessToken,
-		apiUri:      apiUri,
+		domain:             domain,
+		apiUri:             apiUri,
+		maxRetryCount:      maxRetryCount,
+		timeBetweenRetries: time.Duration(timeBetweenRetries) * time.Millisecond,
 	}
 
-	return NewClient(config), nil
+	client, err := NewClient(clientId, clientSecret, config)
+
+	if err != nil {
+		return nil, fmt.Errorf("auth0 provider configuration failure, error: %v", err)
+	}
+
+	return client, nil
 }

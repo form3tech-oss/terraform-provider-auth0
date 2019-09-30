@@ -4,18 +4,54 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-
 	"github.com/parnurzeal/gorequest"
+	"net/http"
 )
 
 type AuthClient struct {
 	config *Config
 }
 
-func NewClient(config *Config) *AuthClient {
+func NewClient(clientId string, clientSecret string, config *Config) (*AuthClient, error) {
+
+	token, err := getToken(clientId, clientSecret, config.domain, config.apiUri)
+
+	if err != nil {
+		return nil, fmt.Errorf("auth0 provider init failed, error: %v", err)
+	}
+
+	config.accessToken = token
+
 	return &AuthClient{
 		config: config,
+	}, nil
+}
+
+func getToken(clientId string, clientSecret string, domain string, apiUri string) (string, error) {
+	auth0LoginRequest := &LoginRequest{
+		ClientId:     clientId,
+		ClientSecret: clientSecret,
+		Audience:     apiUri,
+		GrantType:    "client_credentials",
 	}
+
+	res, body, errs := gorequest.New().Post("https://" + domain + "/oauth/token").Send(auth0LoginRequest).End()
+
+	if errs != nil {
+		return "", fmt.Errorf("could not log in to auth0, error: %v", errs)
+	}
+
+	if res.StatusCode != 200 {
+		return "", fmt.Errorf("unsuccesfull token acquisition expected 200 status code got: %v", res.StatusCode)
+	}
+
+	loginResponse := &LoginResponse{}
+	err := json.Unmarshal([]byte(body), loginResponse)
+	if err != nil {
+		return "", fmt.Errorf("could not parse auth0 login response, error: %v %s", err, body)
+	}
+
+	return loginResponse.AccessToken, nil
 }
 
 type UserRequest struct {
@@ -112,8 +148,11 @@ func (config *Config) getAuthenticationHeader() string {
 
 // User
 func (authClient *AuthClient) GetUserById(id string) (*User, error) {
-
-	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().
+		Get(authClient.config.apiUri+"users/"+id).
+		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
+		End()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
