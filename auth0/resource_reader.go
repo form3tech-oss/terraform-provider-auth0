@@ -1,6 +1,6 @@
 package auth0
 
-import "github.com/hashicorp/terraform/helper/schema"
+import "github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 func readStringFromResource(d *schema.ResourceData, key string) string {
 	if attr, ok := d.GetOk(key); ok {
