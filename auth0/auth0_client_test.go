@@ -12,7 +12,7 @@ import (
 // 2. Create new user
 // 3. Simulate throttled load to GetUserById
 // 4. Clean up the created user
-func TestAccGetUserByIdIsNotThrottled(t *testing.T) {
+func TestAccGetUserByIdIsNotRateLimited(t *testing.T) {
 	auth0RetryCount := 2
 	timeBeetwenRetries := time.Second
 	numberOfRequests := 100

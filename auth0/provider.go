@@ -69,7 +69,11 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	AccessToken string `json:"access_token"`
+	AccessToken      string `json:"access_token"`
+	IdTokens         string `json:"id_token"`
+	TokenType        string `json:"token_type"`
+	Error            string `json:"error"`
+	ErrorDescription string `json:"description"`
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {

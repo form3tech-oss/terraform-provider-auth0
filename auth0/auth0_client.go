@@ -3,6 +3,7 @@ package auth0
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/parnurzeal/gorequest"
 	"net/http"
@@ -14,7 +15,7 @@ type AuthClient struct {
 
 func NewClient(clientId string, clientSecret string, config *Config) (*AuthClient, error) {
 
-	token, err := getToken(clientId, clientSecret, config.domain, config.apiUri)
+	token, err := getToken(clientId, clientSecret, config)
 
 	if err != nil {
 		return nil, fmt.Errorf("auth0 provider init failed, error: %v", err)
@@ -27,15 +28,19 @@ func NewClient(clientId string, clientSecret string, config *Config) (*AuthClien
 	}, nil
 }
 
-func getToken(clientId string, clientSecret string, domain string, apiUri string) (string, error) {
+func getToken(clientId string, clientSecret string, config *Config) (string, error) {
 	auth0LoginRequest := &LoginRequest{
 		ClientId:     clientId,
 		ClientSecret: clientSecret,
-		Audience:     apiUri,
+		Audience:     config.apiUri,
 		GrantType:    "client_credentials",
 	}
 
-	res, body, errs := gorequest.New().Post("https://" + domain + "/oauth/token").Send(auth0LoginRequest).End()
+	res, body, errs := gorequest.New().
+		Post("https://"+config.domain+"/oauth/token").
+		Send(auth0LoginRequest).
+		Retry(config.maxRetryCount, config.timeBetweenRetries, http.StatusTooManyRequests).
+		End()
 
 	if errs != nil {
 		return "", fmt.Errorf("could not log in to auth0, error: %v", errs)
@@ -49,6 +54,18 @@ func getToken(clientId string, clientSecret string, domain string, apiUri string
 	err := json.Unmarshal([]byte(body), loginResponse)
 	if err != nil {
 		return "", fmt.Errorf("could not parse auth0 login response, error: %v %s", err, body)
+	}
+
+	// Check for Auth0 errors
+	if loginResponse.Error != "" {
+		err := fmt.Sprintf("Status: %d, Error: %s", res.StatusCode, loginResponse.Error)
+		if loginResponse.ErrorDescription != "" {
+			err += fmt.Sprintf(", Description: %s", loginResponse.ErrorDescription)
+		}
+
+		err += fmt.Sprintf("\nResponse Body: %s", body)
+
+		return "", errors.New(err)
 	}
 
 	return loginResponse.AccessToken, nil
