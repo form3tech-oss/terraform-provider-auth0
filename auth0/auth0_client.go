@@ -243,7 +243,11 @@ func (authClient *AuthClient) DeleteUserById(id string) error {
 // Client
 func (authClient *AuthClient) GetClientById(id string) (*Client, error) {
 
-	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().
+		Get(authClient.config.apiUri+"clients/"+id).
+		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
+		End()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
@@ -327,7 +331,11 @@ func (authClient *AuthClient) DeleteClientById(id string) error {
 // Api
 func (authClient *AuthClient) GetApiById(id string) (*Api, error) {
 
-	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().
+		Get(authClient.config.apiUri+"resource-servers/"+id).
+		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
+		End()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
@@ -419,6 +427,7 @@ func (authClient *AuthClient) GetClientGrantById(id string) (*ClientGrant, error
 	_, body, errs := gorequest.New().
 		Get(authClient.config.apiUri+"client-grants").
 		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
 		End()
 
 	if errs != nil {
@@ -451,6 +460,7 @@ func (authClient *AuthClient) GetClientGrantByClientIdAndAudience(clientId strin
 	resp, body, errs := gorequest.New().
 		Get(authClient.config.apiUri+"client-grants").
 		Query(queryParams).Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
 		End()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
