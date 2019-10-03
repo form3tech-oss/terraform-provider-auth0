@@ -3,19 +3,72 @@ package auth0
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-
 	"github.com/parnurzeal/gorequest"
+	"net/http"
 )
 
 type AuthClient struct {
 	config *Config
 }
 
-func NewClient(config *Config) *AuthClient {
+func NewClient(clientId string, clientSecret string, config *Config) (*AuthClient, error) {
+
+	token, err := getToken(clientId, clientSecret, config)
+
+	if err != nil {
+		return nil, fmt.Errorf("auth0 provider init failed, error: %v", err)
+	}
+
+	config.accessToken = token
+
 	return &AuthClient{
 		config: config,
+	}, nil
+}
+
+func getToken(clientId string, clientSecret string, config *Config) (string, error) {
+	auth0LoginRequest := &LoginRequest{
+		ClientId:     clientId,
+		ClientSecret: clientSecret,
+		Audience:     config.apiUri,
+		GrantType:    "client_credentials",
 	}
+
+	res, body, errs := gorequest.New().
+		Post("https://"+config.domain+"/oauth/token").
+		Send(auth0LoginRequest).
+		Retry(config.maxRetryCount, config.timeBetweenRetries, http.StatusTooManyRequests).
+		End()
+
+	if errs != nil {
+		return "", fmt.Errorf("could not log in to auth0, error: %v", errs)
+	}
+
+	if res.StatusCode != 200 {
+		return "", fmt.Errorf("unsuccesfull token acquisition expected 200 status code got: %v", res.StatusCode)
+	}
+
+	loginResponse := &LoginResponse{}
+	err := json.Unmarshal([]byte(body), loginResponse)
+	if err != nil {
+		return "", fmt.Errorf("could not parse auth0 login response, error: %v %s", err, body)
+	}
+
+	// Check for Auth0 errors
+	if loginResponse.Error != "" {
+		err := fmt.Sprintf("Status: %d, Error: %s", res.StatusCode, loginResponse.Error)
+		if loginResponse.ErrorDescription != "" {
+			err += fmt.Sprintf(", Description: %s", loginResponse.ErrorDescription)
+		}
+
+		err += fmt.Sprintf("\nResponse Body: %s", body)
+
+		return "", errors.New(err)
+	}
+
+	return loginResponse.AccessToken, nil
 }
 
 type UserRequest struct {
@@ -112,8 +165,11 @@ func (config *Config) getAuthenticationHeader() string {
 
 // User
 func (authClient *AuthClient) GetUserById(id string) (*User, error) {
-
-	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"users/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().
+		Get(authClient.config.apiUri+"users/"+id).
+		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
+		End()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
@@ -204,7 +260,11 @@ func (authClient *AuthClient) DeleteUserById(id string) error {
 // Client
 func (authClient *AuthClient) GetClientById(id string) (*Client, error) {
 
-	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"clients/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().
+		Get(authClient.config.apiUri+"clients/"+id).
+		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
+		End()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
@@ -288,7 +348,11 @@ func (authClient *AuthClient) DeleteClientById(id string) error {
 // Api
 func (authClient *AuthClient) GetApiById(id string) (*Api, error) {
 
-	resp, body, errs := gorequest.New().Get(authClient.config.apiUri+"resource-servers/"+id).Set("Authorization", authClient.config.getAuthenticationHeader()).End()
+	resp, body, errs := gorequest.New().
+		Get(authClient.config.apiUri+"resource-servers/"+id).
+		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
+		End()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
 		return nil, fmt.Errorf("bad status code (%d): %s", resp.StatusCode, body)
@@ -380,6 +444,7 @@ func (authClient *AuthClient) GetClientGrantById(id string) (*ClientGrant, error
 	_, body, errs := gorequest.New().
 		Get(authClient.config.apiUri+"client-grants").
 		Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
 		End()
 
 	if errs != nil {
@@ -412,6 +477,7 @@ func (authClient *AuthClient) GetClientGrantByClientIdAndAudience(clientId strin
 	resp, body, errs := gorequest.New().
 		Get(authClient.config.apiUri+"client-grants").
 		Query(queryParams).Set("Authorization", authClient.config.getAuthenticationHeader()).
+		Retry(authClient.config.maxRetryCount, authClient.config.timeBetweenRetries, http.StatusTooManyRequests).
 		End()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != 404 {
