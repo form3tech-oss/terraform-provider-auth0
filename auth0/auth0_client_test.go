@@ -13,7 +13,7 @@ import (
 // 3. Simulate throttled load to GetUserById
 // 4. Clean up the created user
 func TestAccGetUserByIdIsNotRateLimited(t *testing.T) {
-	auth0RetryCount := 2
+	auth0RetryCount := 20
 	timeBeetwenRetries := time.Second
 	numberOfRequests := 100
 	numberOfGoRoutines := 10

@@ -84,7 +84,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	clientId := d.Get("auth0_client_id").(string)
 	clientSecret := d.Get("auth0_client_secret").(string)
 	maxRetryCount := d.Get("auth0_request_max_retry_count").(int)
-	timeBetweenRetries := d.Get("auth0_request_max_retry_count").(int)
+	timeBetweenRetries := d.Get("auth0_time_between_retries").(int)
 
 	config := &Config{
 		domain:             domain,
