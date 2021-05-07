@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/parnurzeal/gorequest"
 	"net/http"
+
+	"github.com/parnurzeal/gorequest"
 )
 
 type AuthClient struct {

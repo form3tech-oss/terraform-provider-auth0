@@ -1,11 +1,12 @@
 package auth0
 
 import (
-	"github.com/google/uuid"
 	"os"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // 1. Create Token
@@ -70,19 +71,30 @@ func TestAccGetUserByIdIsNotRateLimited(t *testing.T) {
 	}()
 
 	var done sync.WaitGroup
+	errs := make(chan error, numberOfGoRoutines*numberOfRequests)
 
 	for i := 0; i < numberOfGoRoutines; i++ {
 		done.Add(1)
 		go func() {
 			defer done.Done()
+
 			for i := 1; i <= numberOfRequests; i++ {
 				_, err := client.GetUserById(createdUser.UserId)
 				if err != nil {
-					t.Fatalf("failed to get user %v", err)
+					errs <- err
 				}
 			}
 		}()
 	}
 
-	done.Wait()
+	go func() {
+		done.Wait()
+		close(errs)
+	}()
+
+	for err := range errs {
+		if err != nil {
+			t.Fatalf("failed to get user %v", err)
+		}
+	}
 }
