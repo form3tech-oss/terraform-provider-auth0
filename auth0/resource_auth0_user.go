@@ -61,6 +61,7 @@ func resourceAuth0UserCreate(d *schema.ResourceData, meta interface{}) error {
 	userRequest := createUserRequestFromResourceData(d)
 
 	user, err := auth0Client.CreateUser(userRequest)
+	TfLogJson("[resourceAuth0UserCreate]", userRequest)
 
 	if err != nil {
 		return fmt.Errorf("failed to create auth0 user: %v error: %v", userRequest, err)
@@ -78,6 +79,7 @@ func resourceAuth0UserUpdate(d *schema.ResourceData, meta interface{}) error {
 	userId := d.Id()
 
 	for _, update := range updateUserRequests {
+		TfLogJson("[resourceAuth0UserUpdate]", update)
 		_, err := auth0Client.UpdateUserById(userId, update)
 
 		if err != nil {
@@ -100,6 +102,7 @@ func resourceAuth0UserRead(d *schema.ResourceData, meta interface{}) error {
 
 	if user == nil {
 		d.SetId("")
+		TfLogString("[resourceAuth0UserRead]", "User is nil")
 	} else {
 		d.Set("user_id", user.UserId)
 		d.Set("email", user.Email)
@@ -112,6 +115,8 @@ func resourceAuth0UserRead(d *schema.ResourceData, meta interface{}) error {
 		if len(user.Identities) > 0 {
 			d.Set("connection_type", user.Identities[0].Connection)
 		}
+
+		TfLogJson("[resourceAuth0UserRead]", user)
 	}
 
 	return nil
@@ -126,6 +131,8 @@ func resourceAuth0UserDelete(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("could not delete auth0 user: %v", err)
 	}
+
+	TfLogString("[resourceAuth0UserDelete]", d.Id())
 
 	return nil
 }
@@ -143,13 +150,19 @@ func createUserUpdatesFromResourceData(d *schema.ResourceData) []*UserRequest {
 	userRequestA.Name = readStringFromResource(d, "name")
 	userRequestA.UserMetaData = readMapFromResource(d, "user_metadata")
 
+	TfLogJson("[createUserUpdatesFromResourceData-userRequestA]", userRequestA)
+
 	// Second contains only the password
 	userRequestB := &UserRequest{}
 	userRequestB.Password = readStringFromResource(d, "password")
 
+	TfLogJson("[createUserUpdatesFromResourceData-userRequestB]", userRequestB)
+
 	// Final updates the email_verified state
 	userRequestC := &UserRequest{}
 	userRequestC.EmailVerified = readBoolFromResource(d, "email_verified")
+
+	TfLogJson("[createUserUpdatesFromResourceData-userRequestC]", userRequestC)
 
 	return []*UserRequest{userRequestA, userRequestB, userRequestC}
 }
@@ -164,6 +177,8 @@ func createUserRequestFromResourceData(d *schema.ResourceData) *UserRequest {
 	userRequest.Password = readStringFromResource(d, "password")
 	userRequest.UserMetaData = readMapFromResource(d, "user_metadata")
 	userRequest.EmailVerified = readBoolFromResource(d, "email_verified")
+
+	TfLogJson("[createUserRequestFromResourceData-userRequest]", userRequest)
 
 	return userRequest
 }

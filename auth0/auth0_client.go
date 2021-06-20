@@ -186,6 +186,10 @@ func (authClient *AuthClient) GetUserById(id string) (*User, error) {
 		return nil, fmt.Errorf("could not parse auth0 get user response, error: %v %s", err, body)
 	}
 
+	TfLogString("[GetUserById-raw]", body)
+	TfLogJson("[GetUserById-unmarshalled-user]", user)
+	TfLogJson("[GetUserById-unmarshalled-user_metadata]", user.UserMetaData)
+
 	if user.UserId == "" {
 		return nil, nil
 	}
@@ -240,6 +244,10 @@ func (authClient *AuthClient) UpdateUserById(id string, userRequest *UserRequest
 	if err != nil {
 		return nil, fmt.Errorf("could not parse auth0 user update response, error: %v", err)
 	}
+
+	TfLogString("[UpdateUserById-raw]", body)
+	TfLogJson("[UpdateUserById-unmarshalled-user]", updatedUser)
+	TfLogJson("[UpdateUserById-unmarshalled-user_metadata]", updatedUser.UserMetaData)
 
 	if updatedUser.UserId == "" {
 		return nil, fmt.Errorf("could not update auth0 user, error: %v", body)
