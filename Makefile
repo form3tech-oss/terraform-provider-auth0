@@ -8,14 +8,17 @@ test: fmtcheck
 testacc: fmtcheck
 	go test -v ./auth0 -run="TestAcc"
 
-build: fmtcheck vet testacc
+build-only:
 	@go install
 	@mkdir -p ~/.terraform.d/plugins/
 	@cp $(GOPATH)/bin/terraform-provider-auth0 ~/.terraform.d/plugins/terraform-provider-auth0
 	@echo "Build succeeded"
 
+build: fmtcheck vet testacc build-only
+
 clean:
 	rm -rf pkg/
+
 fmt:
 	gofmt -w $(GOFMT_FILES)
 
@@ -31,4 +34,4 @@ vet:
 		exit 1; \
 	fi
 
-.PHONY: build test testacc vet fmt fmtcheck errcheck vendor-status test-compile
+.PHONY: build build-only test testacc vet fmt fmtcheck errcheck vendor-status test-compile
