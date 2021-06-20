@@ -37,8 +37,9 @@ func resourceAuth0User() *schema.Resource {
 				Optional: true,
 			},
 			"password": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 			},
 			"user_metadata": &schema.Schema{
 				Type:     schema.TypeMap,
