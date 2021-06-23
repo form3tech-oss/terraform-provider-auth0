@@ -2,7 +2,7 @@ package auth0
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceAuth0ClientGrant() *schema.Resource {
