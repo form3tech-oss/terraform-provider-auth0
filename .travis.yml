@@ -1,18 +1,18 @@
 language: go
 go:
-- 1.16
+  - 1.17
 services:
-- docker
+  - docker
 script:
-- make
+  - make
 deploy:
-- provider: script
-  skip_cleanup: true
-  script: bash scripts/goreleaser.sh
-  on:
-    tags: true
-    condition: $TRAVIS_OS_NAME = linux
+  - provider: script
+    skip_cleanup: true
+    script: bash scripts/goreleaser.sh
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = linux
 env:
   global:
-  - TF_ACC=1
-  - GO111MODULE=on
+    - TF_ACC=1
+    - GO111MODULE=on
