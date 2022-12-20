@@ -9,9 +9,9 @@ testacc: fmtcheck
 	go test -v ./auth0 -run="TestAcc"
 
 build-only:
-	@go install
-	@mkdir -p ~/.terraform.d/plugins/
-	@cp $(GOPATH)/bin/terraform-provider-auth0 ~/.terraform.d/plugins/terraform-provider-auth0
+	@go build -o terraform-provider-auth0
+	@mkdir -p "$HOME/.terraform.d/plugins/"
+	@cp "terraform-provider-auth0" "$HOME/.terraform.d/plugins/terraform-provider-auth0"
 	@echo "Build succeeded"
 
 build: fmtcheck vet testacc build-only
