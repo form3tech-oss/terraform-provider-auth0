@@ -14,8 +14,8 @@ import (
 // 3. Simulate throttled load to GetUserById
 // 4. Clean up the created user
 func TestAccGetUserByIdIsNotRateLimited(t *testing.T) {
-	auth0RetryCount := 20
-	timeBeetwenRetries := time.Second
+	auth0RetryCount := 31
+	timeBetweenRetries := 2 * time.Second
 	numberOfRequests := 100
 	numberOfGoRoutines := 10
 
@@ -40,7 +40,7 @@ func TestAccGetUserByIdIsNotRateLimited(t *testing.T) {
 		domain:             domain,
 		apiUri:             apiUri,
 		maxRetryCount:      auth0RetryCount,
-		timeBetweenRetries: timeBeetwenRetries,
+		timeBetweenRetries: timeBetweenRetries,
 	}
 
 	client, err := NewClient(clientId, clientSecret, config)
